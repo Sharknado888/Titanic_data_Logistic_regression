@@ -1,0 +1,100 @@
+#Getting data
+
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import math
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+
+titanic_data=pd.read_csv("titanic_data.csv")
+
+titanic_data.head(10)
+
+print("number of passengers in original data "+str(len(titanic_data.index)))
+
+#Analysing data
+
+sns.countplot(x="Survived",data=titanic_data)
+
+sns.countplot(x="Survived", hue="Sex", data=titanic_data)
+
+sns.countplot(x="Survived",hue="Pclass",data=titanic_data)
+
+sns.countplot(x="Pclass",hue="2",data=titanic_data)
+
+titanic_data["Age"].plot.hist(bins=20,figsize=(10,5))
+
+titanic_data["Pclass"].plot.hist()
+
+titanic_data.info()
+
+sns.countplot(x="SibSp",data=titanic_data)
+
+sns.countplot(x="Fare",hue="Pclass",data=titanic_data)
+
+#Data Wrangling
+
+titanic_data.isnull().sum()
+
+sns.heatmap(titanic_data.isnull())
+
+sns.boxplot(x="Pclass",y="Age",data=titanic_data)
+
+titanic_data.drop("Cabin", axis=1, inplace=True)
+
+titanic_data.head(5)
+
+titanic_data.dropna(inplace=True)
+
+sns.heatmap(titanic_data.isnull(),cbar=False)
+
+titanic_data.isnull().sum()
+
+sex= pd.get_dummies(titanic_data["Sex"],drop_first=True)
+
+sex.head(5)
+
+embark=pd.get_dummies(titanic_data["Embarked"], drop_first=True)
+
+embark.head(5)
+
+Pcl=pd.get_dummies(titanic_data["Pclass"],drop_first=True)
+
+Pcl.head(9)
+
+titanic_data=pd.concat([titanic_data,sex,embark,Pcl],axis=1)
+
+titanic_data.head(5)
+
+Clean_data=titanic_data.drop(["PassengerId","Sex","Pclass","Name","Embarked","Ticket"],axis=1)
+
+Clean_data.head(5)
+
+#Training
+
+X=Clean_data.drop("Survived",axis=1)
+y=Clean_data["Survived"]
+
+X_train, X_test, y_train, y_test= train_test_split(X,y,test_size=0.3,random_state=1)
+
+logmodel=LogisticRegression()
+
+logmodel.fit(X_train, y_train)
+
+predictions=logmodel.predict(X_test)
+
+#Evaluating the model
+
+from sklearn.metrics import classification_report
+
+classification_report(y_test, predictions)
+
+from sklearn.metrics import confusion_matrix
+
+confusion_matrix(y_test,predictions)
+
+from sklearn.metrics import accuracy_score
+
+accuracy_score(y_test,predictions)
